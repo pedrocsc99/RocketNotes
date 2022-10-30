@@ -20,22 +20,33 @@ export function New() {
   const [newTag, setNewTag] = useState("");
   const navigate =useNavigate()
   function handleAddLinks() {
+    
     setLinks((prevState) => [...prevState, newLink]);
     setNewLink("");
+
   }
   function handleRemoveLink(deleted) {
     setLinks((prevState) => prevState.filter((link) => link !== deleted));
-    setNewTag("");
+    
   }
   function handleAddTag() {
+    
     setTags((prevState) => [...prevState, newTag]);
-    console.log(tags);
-    console.log(newTag);
+    setNewTag("");
   }
   function handleRemoveTag(deleted) {
     setTags((prevState) => prevState.filter((tag) => tag !== deleted));
   }
   async function handleNewNote() {
+    if (!title) {
+      alert("Adicione um titulo")
+    }
+    if (newLink) {
+      alert("Você deixou um Link no campo para adicionar mas não clicou para adicionar. Adicione ou deixe o campo vazio")
+    }
+    if (newTag) {
+      alert("Você deixou uma tag no campo para adicionar mas não clicou para adicionar. Adicione ou deixe o campo vazio")
+    }
     await api.post("/notes",{
       title,
       description,
