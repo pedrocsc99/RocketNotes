@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { Container, Links, Content } from "./styles.js";
-
+import { useParams,useNavigate } from "react-router-dom";
+import { api } from "../../service/api";
 import { Button } from "../../components/Button";
 import { Header } from "../../components/Header/index.jsx";
 import { Section } from "../../components/Section/index.jsx";
@@ -8,36 +10,66 @@ import { ButtonText } from "../../components/ButtonText";
 import { Tag } from "../../components/Tag/index.jsx";
 
 export function Details() {
+  const [data, setData] = useState(null);
+  const params = useParams();
+  const navigate = useNavigate();
+
+
+
+
+
+  function handleBack() {
+    navigate(-1);
+  }
+  async function handleRemove() {
+    const confirm= window.confirm("Deseja realmente remover a nota?")
+    if (confirm) {
+      await api.delete(`/notes/${params.id}`);
+      navigate(-1);
+    }
+  }
+
+  useEffect(() => {
+    async function fetchNote() {
+      const response = await api.get(`/notes/${params.id}`);
+      setData(response.data);
+    }
+    fetchNote();
+  }, []);
   return (
     <Container>
       <Header />
+      {data && (
+        <main>
+          <Content>
+            <ButtonText title="excluir nota" onClick={handleRemove} />
 
-      <main>
-        <Content>
-          <ButtonText title="excluir nota" />
+            <h1>{data.title}</h1>
+            <p>{data.description}</p>
 
-          <h1>
-              Introdução a React
-          </h1>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel, ratione numquam, corporis cumque voluptatibus nostrum porro magni debitis dignissimos ad atque ex saepe ea officia neque iusto at maxime repellendus! Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eum earum aspernatur iusto inventore, perspiciatis odit impedit nobis corporis vero delectus quasi officiis minus molestiae dignissimos consectetur distinctio sapiente reprehenderit nihil. Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ratione explicabo animi cupiditate a? Beatae tempora eaque, consectetur quas praesentium minima. Minima quo recusandae eveniet unde dolorem voluptatem, veritatis suscipit!</p>
-          <Section title="Links úteis">
-            <Links>
-              <li>
-                <a>https://www.rocketseat.com.br/</a>
-              </li>
-              <li>
-                <a>https://www.rocketseat.com.br/</a>
-              </li>
-            </Links>
-          </Section>
-          <Section title="Marcadores">
-            <Tag title="express" />
-            <Tag title="nodejs" />
-          </Section>
+            {data.links && (
+              <Section title="Links úteis">
+                <Links>
+                  {data.links.map((link) => (
+                    <li key={String(link.id)}>
+                      <a href={link.url}target="_blank">{link.url}</a>
+                    </li>
+                  ))}
+                </Links>
+              </Section>
+            )}
+            {data.tags && (
+              <Section title="Marcadores">
+                {data.tags.map((tag) => (
+                  <Tag key={String(tag.id)} title={tag.name} />
+                ))}
+              </Section>
+            )}
 
-          <Button title="Voltar" />
-        </Content>
-      </main>
+            <Button title="Voltar" onClick={handleBack} />
+          </Content>
+        </main>
+      )}
     </Container>
   );
 }

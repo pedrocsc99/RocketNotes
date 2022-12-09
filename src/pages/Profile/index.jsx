@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiArrowLeft, FiUser, FiMail, FiLock, FiCamera } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {api} from "../../service/api";
 import { useAuth } from "../../hooks/auth";
 import { Input } from "../../components/Input";
@@ -17,19 +17,22 @@ export function Profile() {
   const [passwordOld, setPasswordOld] = useState();
   const [passwordNew, setPasswordNew] = useState();
 
+  const navigate =useNavigate()
+
 
   const avatarUrl = user.avatar ? `${api.defaults.baseURL}/files/${user.avatar}` : avatarPlaceHolder;
 
   const [avatar,setAvatar] = useState(avatarUrl)
   const [avatarFile,setAvatarFile] = useState(null)
   async function handleUpdate() {
-    const user = {
+    const updated = {
       name,
       email,
       password : passwordNew,
       old_password :passwordOld
     }
-    updateProfile({user, avatarFile})
+    const userUpdated =Object.assign(user,updated)
+    updateProfile({user :userUpdated , avatarFile})
   }
 function handleChangeAvatar(event) {
   const file = event.target.files[0]
@@ -38,13 +41,16 @@ function handleChangeAvatar(event) {
   setAvatar(imagePreview)
   
 }
+function handleBack() {
+  navigate(-1);
+}
   
   return (
     <Container>
       <header>
-        <Link to="/">
+        <button onClick={handleBack}>
           <FiArrowLeft />
-        </Link>
+        </button>
       </header>
       <Form>
         <Avatar>
